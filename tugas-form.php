@@ -56,13 +56,16 @@ class DataViewer
         $sql = "SELECT * FROM form";
         $result = $this->conn->query($sql);
 
+        echo "<table border='1'>";
+        echo "<tr><th>Nama</th><th>Email</th><th>WhatsApp</th><th>Alamat</th></tr>";
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-                echo "Nama: " . $row["nama"] . " - Email: " . $row["email"] . " - WhatsApp: " . $row["whatsapp"] . " - Alamat: " . $row["alamat"] . "<br>";
+                echo "<tr><td>" . $row["nama"] . "</td><td>" . $row["email"] . "</td><td>" . $row["whatsapp"] . "</td><td>" . $row["alamat"] . "</td></tr>";
             }
         } else {
-            echo "Tidak ada data";
+            echo "<tr><td colspan='4'>Tidak ada data</td></tr>";
         }
+        echo "</table>";
     }
 
     public function closeConnection()
@@ -101,12 +104,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 22px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            background-color: rgba(249, 249, 249, 0.2);
+            background-color: rgba(249, 249, 249, 0.3);
+            flex-direction: row-reverse;
         }
 
         .form-container,
         .data-container {
-            width: 45%;
+            width: 60%;
+        }
+
+        .form-container {
+            margin-left: 40px;
         }
 
         label {
@@ -119,7 +127,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         input[type="tel"],
         textarea {
             width: 100%;
-            padding: 10px 10px 10px 0;
+            padding: 10px 0px 10px 0;
             margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 3px;
@@ -136,6 +144,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         button:hover {
             background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
         }
     </style>
 </head>
