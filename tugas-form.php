@@ -1,11 +1,10 @@
 <?php
 class FormHandler
 {
-    private $conn; // Koneksi ke database
+    private $conn;
 
     public function __construct()
     {
-        // Inisialisasi koneksi ke database
         $this->conn = new mysqli("127.0.0.1", "root", "", "tugas-form");
         if ($this->conn->connect_error) {
             die("Koneksi gagal: " . $this->conn->connect_error);
@@ -14,19 +13,16 @@ class FormHandler
 
     public function processForm()
     {
-        // Ambil data dari form
         $nama = $_POST['nama'];
         $email = $_POST['email'];
         $whatsapp = $_POST['whatsapp'];
         $alamat = $_POST['alamat'];
 
-        // Validasi format email
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             header("Location: tugas-form.php?error=invalidemail");
             exit;
         }
 
-        // Simpan data ke tabel di database
         $sql = "INSERT INTO form (nama, email, whatsapp, alamat) VALUES ('$nama', '$email', '$whatsapp', '$alamat')";
         if ($this->conn->query($sql) === TRUE) {
             header("Location: tugas-form.php?success=true");
@@ -43,8 +39,40 @@ class FormHandler
     }
 }
 
-// Penggunaan:
+class DataViewer
+{
+    private $conn;
+
+    public function __construct()
+    {
+        $this->conn = new mysqli("127.0.0.1", "root", "", "tugas-form");
+        if ($this->conn->connect_error) {
+            die("Koneksi gagal: " . $this->conn->connect_error);
+        }
+    }
+
+    public function viewData()
+    {
+        $sql = "SELECT * FROM form";
+        $result = $this->conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                echo "Nama: " . $row["nama"] . " - Email: " . $row["email"] . " - WhatsApp: " . $row["whatsapp"] . " - Alamat: " . $row["alamat"] . "<br>";
+            }
+        } else {
+            echo "Tidak ada data";
+        }
+    }
+
+    public function closeConnection()
+    {
+        $this->conn->close();
+    }
+}
+
 $formHandler = new FormHandler();
+$dataViewer = new DataViewer();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $formHandler->processForm();
@@ -66,12 +94,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .container {
-            max-width: 400px;
+            display: flex;
+            justify-content: space-between;
+            max-width: 800px;
             margin: 50px auto;
             padding: 22px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            background-color: rgba(249, 249, 249, 0.3);
+            background-color: rgba(249, 249, 249, 0.2);
+        }
+
+        .form-container,
+        .data-container {
+            width: 45%;
         }
 
         label {
@@ -107,27 +142,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <body>
     <div class="container">
-        <h1>Form Pendaftaran</h1>
-        <div id="alert" style="display: none;"></div>
-        <form method="POST" action="tugas-form.php">
-            <label for="nama">Nama:</label>
-            <input type="text" id="nama" name="nama" required>
+        <div class="form-container">
+            <h1>Form Pendaftaran</h1>
+            <div id="alert" style="display: none;"></div>
+            <form method="POST" action="tugas-form.php">
+                <label for="nama">Nama:</label>
+                <input type="text" id="nama" name="nama" required>
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
 
-            <label for="whatsapp">WhatsApp:</label>
-            <input type="tel" id="whatsapp" name="whatsapp" required>
+                <label for="whatsapp">WhatsApp:</label>
+                <input type="tel" id="whatsapp" name="whatsapp" required>
 
-            <label for="alamat">Alamat:</label>
-            <textarea id="alamat" name="alamat" required></textarea>
+                <label for="alamat">Alamat:</label>
+                <textarea id="alamat" name="alamat" required></textarea>
 
-            <button type="submit">Submit</button>
-        </form>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+        <div class="data-container">
+            <h1>Data</h1>
+            <?php $dataViewer->viewData(); ?>
+        </div>
     </div>
 
     <script>
-        // Jika form disubmit, tampilkan notifikasi
         document.querySelector('form').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -139,7 +179,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             alert.style.padding = '10px';
             alert.style.marginBottom = '15px';
 
-            // Hilangkan notifikasi setelah 3 detik
             setTimeout(function() {
                 alert.style.display = 'none';
             }, 3000);
